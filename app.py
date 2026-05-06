@@ -61,19 +61,19 @@ st.markdown("""
     }
     .factor-box {
         padding: 0.8em;
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.92);
         border-radius: 0.3em;
         margin: 0.5em 0;
         font-size: 0.95em;
-        color: #e5e7eb;
+        color: #111111;
     }
     .factor-positive {
         border-left: 3px solid #d32f2f;
-        background: rgba(211, 47, 47, 0.14);
+        background: rgba(211, 47, 47, 0.08);
     }
     .factor-negative {
         border-left: 3px solid #388e3c;
-        background: rgba(56, 142, 60, 0.14);
+        background: rgba(56, 142, 60, 0.08);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -96,13 +96,13 @@ pipeline = get_pipeline()
 
 FEATURE_OPTIONS = {
     'Gender': ['Male', 'Female'],
-    'Age': ['Basso_18-26', 'Alto_27-43'],
+    'Age': ['18-26 years', '27-43 years'],
     'Academic Pressure': ['Basso', 'Medio', 'Alto'],
-    'CGPA_30': ['Basso (15-20)', 'Medio (20-25)', 'Alto (25-30)'],  # Scala trentesimi
+    'CGPA_30': ['15-20', '20-25', '25-30'],
     'Study Satisfaction': ['Basso', 'Medio', 'Alto'],
     'Sleep Duration': ['Less than 5 hours', '5-6 hours', '7-8 hours', 'More than 8 hours'],
     'Dietary Habits': ['Healthy', 'Moderate', 'Unhealthy'],
-    'Work/Study Hours': ['Basso_0-4', 'Medio_5-9', 'Alto_10-12'],
+    'Work/Study Hours': ['0-4 hours', '5-9 hours', '10-12 hours'],
     'Financial Stress': ['Basso', 'Medio', 'Alto'],
     'Family History of Mental Illness': ['Yes', 'No'],
     'Degree_Level': ['High School', 'Undergraduate', 'Postgraduate']
@@ -110,9 +110,9 @@ FEATURE_OPTIONS = {
 
 # Mapping trentesimi (0-30) → CGPA (0-10)
 CGPA_MAPPING = {
-    'Basso (15-20)': 'Basso_5.03-6.65',
-    'Medio (20-25)': 'Medio_6.69-8.4',
-    'Alto (25-30)': 'Alto_8.42-10.0'
+    '15-20': 'Basso_5.03-6.65',
+    '20-25': 'Medio_6.69-8.4',
+    '25-30': 'Alto_8.42-10.0'
 }
 
 PLACEHOLDER_OPTION = "Seleziona..."
@@ -121,12 +121,26 @@ PLACEHOLDER_OPTION = "Seleziona..."
 def with_placeholder(options):
     return [PLACEHOLDER_OPTION] + options
 
+
+def encode_form_value(feature, value):
+    if value == PLACEHOLDER_OPTION:
+        return None
+    if feature == 'Age':
+        return 'Basso_18-26' if value == '18-26 years' else 'Alto_27-43'
+    if feature == 'Work/Study Hours':
+        return {
+            '0-4 hours': 'Basso_0-4',
+            '5-9 hours': 'Medio_5-9',
+            '10-12 hours': 'Alto_10-12'
+        }[value]
+    return value
+
 # ============================================================================
 # MAIN UI
 # ============================================================================
 
 st.markdown('<div class="main-title">🧠 Depression Risk Assessment</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Answer the following questions about your lifestyle and mental health</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Answer the following questions about your lifestyle and mental health.</div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -149,7 +163,7 @@ with st.form("assessment_form", clear_on_submit=False):
             with col1:
                 if feature == 'CGPA_30':
                     cgpa_30_val = st.selectbox(
-                        "CGPA (trentesimi)",
+                        "CGPA",
                         options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
@@ -165,7 +179,7 @@ with st.form("assessment_form", clear_on_submit=False):
             with col2:
                 if feature == 'CGPA_30':
                     cgpa_30_val = st.selectbox(
-                        "CGPA (trentesimi)",
+                        "CGPA",
                         options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
@@ -198,9 +212,13 @@ if submit_button and missing_fields:
 
 if submit_button:
     try:
+        model_input = {
+            feature: encode_form_value(feature, value)
+            for feature, value in user_input.items()
+        }
         # Run pipeline
         with st.spinner("🔄 Analyzing your profile..."):
-            result = pipeline.predict_pipeline(user_input)
+            result = pipeline.predict_pipeline(model_input)
         
         # Display results
         st.success("✅ Analysis complete!")
@@ -240,7 +258,7 @@ if submit_button:
         
         # Positive factors (risk)
         with factor_col1:
-            st.markdown("**🚩 Risk Factors (Positive)**")
+            st.markdown("**🚩 Risk Factors**")
             if result['positive_factors']:
                 for factor_name, coef in result['positive_factors'][:3]:
                     clean_name = factor_name.replace('_', ' ')
@@ -255,7 +273,7 @@ if submit_button:
         
         # Negative factors (protective)
         with factor_col2:
-            st.markdown("**🌿 Protective Factors (Negative)**")
+            st.markdown("**🌿 Protective Factors**")
             if result['negative_factors']:
                 for factor_name, coef in result['negative_factors'][:3]:
                     clean_name = factor_name.replace('_', ' ')
