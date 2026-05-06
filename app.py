@@ -280,7 +280,13 @@ if submit_button:
         st.markdown("---")
         
         # Detailed results in columns
-        col1, col2, col3 = st.columns(3)
+        col0, col1, col2, col3 = st.columns(4)
+
+        with col0:
+            st.metric(
+                label="Prediction",
+                value=int(result['is_risk'])
+            )
         
         with col1:
             st.metric(

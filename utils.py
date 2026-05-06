@@ -257,9 +257,9 @@ class InferencePipeline:
     def _get_cluster_name(cluster: int) -> str:
         """Map cluster ID to descriptive name."""
         names = {
-            0: "Cluster 0 (HS Giovani)",
-            1: "Cluster 1 (Uni Grandi)",
-            2: "Cluster 2 (Uni Giovani)"
+            0: "University Students (Older)",
+            1: "High School Students (Younger)",
+            2: "University Students (Younger)"
         }
         return names.get(cluster, "Sconosciuto")
 
