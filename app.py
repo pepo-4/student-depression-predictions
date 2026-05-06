@@ -115,6 +115,12 @@ CGPA_MAPPING = {
     'Alto (25-30)': 'Alto_8.42-10.0'
 }
 
+PLACEHOLDER_OPTION = "Seleziona..."
+
+
+def with_placeholder(options):
+    return [PLACEHOLDER_OPTION] + options
+
 # ============================================================================
 # MAIN UI
 # ============================================================================
@@ -144,15 +150,15 @@ with st.form("assessment_form", clear_on_submit=False):
                 if feature == 'CGPA_30':
                     cgpa_30_val = st.selectbox(
                         "CGPA (trentesimi)",
-                        options=FEATURE_OPTIONS[feature],
+                        options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
                     # Convert to 0-10 scale for model
-                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val]
+                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val] if cgpa_30_val != PLACEHOLDER_OPTION else None
                 else:
                     user_input[feature] = st.selectbox(
                         f"{feature}",
-                        options=FEATURE_OPTIONS[feature],
+                        options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
         else:
@@ -160,15 +166,15 @@ with st.form("assessment_form", clear_on_submit=False):
                 if feature == 'CGPA_30':
                     cgpa_30_val = st.selectbox(
                         "CGPA (trentesimi)",
-                        options=FEATURE_OPTIONS[feature],
+                        options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
                     # Convert to 0-10 scale for model
-                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val]
+                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val] if cgpa_30_val != PLACEHOLDER_OPTION else None
                 else:
                     user_input[feature] = st.selectbox(
                         f"{feature}",
-                        options=FEATURE_OPTIONS[feature],
+                        options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
     
@@ -180,9 +186,15 @@ with st.form("assessment_form", clear_on_submit=False):
         use_container_width=True
     )
 
+missing_fields = [field for field, value in user_input.items() if value is None or value == PLACEHOLDER_OPTION]
+
 # ============================================================================
 # PREDICTION & RESULTS
 # ============================================================================
+
+if submit_button and missing_fields:
+    st.warning("Compila tutti i campi prima di avviare il risk assessment.")
+    st.stop()
 
 if submit_button:
     try:
