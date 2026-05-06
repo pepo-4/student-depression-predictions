@@ -193,7 +193,7 @@ missing_fields = [field for field, value in user_input.items() if value is None 
 # ============================================================================
 
 if submit_button and missing_fields:
-    st.warning("Compila tutti i campi prima di avviare il risk assessment.")
+    st.warning("Please complete all fields before starting the risk assessment.")
     st.stop()
 
 if submit_button:
