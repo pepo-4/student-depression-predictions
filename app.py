@@ -143,22 +143,18 @@ def encode_form_value(feature, value):
 
 
 def format_factor_label(factor_name):
-    feature, _, value = factor_name.partition('_')
-    feature = feature.replace('_', ' ')
-    value = value.replace('_', ' ')
-
     feature_map = {
-        'Age': 'Age',
-        'Academic Pressure': 'Academic Pressure',
-        'Study Satisfaction': 'Study Satisfaction',
-        'Financial Stress': 'Financial Stress',
-        'Work Study Hours': 'Work/Study Hours',
-        'Sleep Duration': 'Sleep Duration',
-        'Dietary Habits': 'Dietary Habits',
-        'Family History of Mental Illness': 'Family History of Mental Illness',
-        'Degree Level': 'Degree Level',
-        'Gender': 'Gender',
-        'CGPA': 'CGPA'
+        'Age_': 'Age',
+        'Academic_Pressure_': 'Academic Pressure',
+        'Study_Satisfaction_': 'Study Satisfaction',
+        'Financial_Stress_': 'Financial Stress',
+        'Work_Study_Hours_': 'Work/Study Hours',
+        'Sleep_Duration_': 'Sleep Duration',
+        'Dietary_Habits_': 'Dietary Habits',
+        'Family_History_of_Mental_Illness_': 'Family History of Mental Illness',
+        'Degree_Level_': 'Degree Level',
+        'Gender_': 'Gender',
+        'CGPA_': 'CGPA'
     }
 
     value_map = {
@@ -175,8 +171,16 @@ def format_factor_label(factor_name):
         'Alto': 'High'
     }
 
-    display_feature = feature_map.get(feature, feature)
-    display_value = value_map.get(value, value)
+    display_feature = factor_name
+    display_value = factor_name
+
+    for prefix, label in feature_map.items():
+        if factor_name.startswith(prefix):
+            display_feature = label
+            display_value = factor_name[len(prefix):].replace('_', ' ')
+            break
+
+    display_value = value_map.get(display_value, display_value)
 
     return f"{display_feature} {display_value}".strip()
 
