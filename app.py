@@ -97,13 +97,13 @@ pipeline = get_pipeline()
 FEATURE_OPTIONS = {
     'Gender': ['Male', 'Female'],
     'Age': ['18-26 years', '27-43 years'],
-    'Academic Pressure': ['Basso', 'Medio', 'Alto'],
+    'Academic Pressure': ['High', 'Medium', 'Low'],
     'CGPA_30': ['15-20', '20-25', '25-30'],
-    'Study Satisfaction': ['Basso', 'Medio', 'Alto'],
+    'Study Satisfaction': ['High', 'Medium', 'Low'],
     'Sleep Duration': ['Less than 5 hours', '5-6 hours', '7-8 hours', 'More than 8 hours'],
     'Dietary Habits': ['Healthy', 'Moderate', 'Unhealthy'],
     'Work/Study Hours': ['0-4 hours', '5-9 hours', '10-12 hours'],
-    'Financial Stress': ['Basso', 'Medio', 'Alto'],
+    'Financial Stress': ['High', 'Medium', 'Low'],
     'Family History of Mental Illness': ['Yes', 'No'],
     'Degree_Level': ['High School', 'Undergraduate', 'Postgraduate']
 }
@@ -115,7 +115,7 @@ CGPA_MAPPING = {
     '25-30': 'Alto_8.42-10.0'
 }
 
-PLACEHOLDER_OPTION = "Seleziona..."
+PLACEHOLDER_OPTION = "Select..."
 
 
 def with_placeholder(options):
@@ -127,6 +127,12 @@ def encode_form_value(feature, value):
         return None
     if feature == 'Age':
         return 'Basso_18-26' if value == '18-26 years' else 'Alto_27-43'
+    if feature in {'Academic Pressure', 'Study Satisfaction', 'Financial Stress'}:
+        return {
+            'High': 'Alto',
+            'Medium': 'Medio',
+            'Low': 'Basso'
+        }[value]
     if feature == 'Work/Study Hours':
         return {
             '0-4 hours': 'Basso_0-4',
@@ -170,8 +176,11 @@ with st.form("assessment_form", clear_on_submit=False):
                     # Convert to 0-10 scale for model
                     user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val] if cgpa_30_val != PLACEHOLDER_OPTION else None
                 else:
+                    label = f"{feature}"
+                    if feature == 'Degree_Level':
+                        label = "Degree Level (current)"
                     user_input[feature] = st.selectbox(
-                        f"{feature}",
+                        label,
                         options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
@@ -186,8 +195,11 @@ with st.form("assessment_form", clear_on_submit=False):
                     # Convert to 0-10 scale for model
                     user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val] if cgpa_30_val != PLACEHOLDER_OPTION else None
                 else:
+                    label = f"{feature}"
+                    if feature == 'Degree_Level':
+                        label = "Degree Level (current)"
                     user_input[feature] = st.selectbox(
-                        f"{feature}",
+                        label,
                         options=with_placeholder(FEATURE_OPTIONS[feature]),
                         key=f"select_{feature}"
                     )
