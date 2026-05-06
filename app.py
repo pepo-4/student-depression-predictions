@@ -93,7 +93,7 @@ FEATURE_OPTIONS = {
     'Gender': ['Male', 'Female'],
     'Age': ['Basso_18-26', 'Alto_27-43'],
     'Academic Pressure': ['Basso', 'Medio', 'Alto'],
-    'CGPA': ['Basso_5.03-6.65', 'Medio_6.69-8.4', 'Alto_8.42-10.0'],
+    'CGPA_30': ['Basso (15-20)', 'Medio (20-25)', 'Alto (25-30)'],  # Scala trentesimi
     'Study Satisfaction': ['Basso', 'Medio', 'Alto'],
     'Sleep Duration': ['Less than 5 hours', '5-6 hours', '7-8 hours', 'More than 8 hours'],
     'Dietary Habits': ['Healthy', 'Moderate', 'Unhealthy'],
@@ -101,6 +101,13 @@ FEATURE_OPTIONS = {
     'Financial Stress': ['Basso', 'Medio', 'Alto'],
     'Family History of Mental Illness': ['Yes', 'No'],
     'Degree_Level': ['High School', 'Undergraduate', 'Postgraduate']
+}
+
+# Mapping trentesimi (0-30) → CGPA (0-10)
+CGPA_MAPPING = {
+    'Basso (15-20)': 'Basso_5.03-6.65',
+    'Medio (20-25)': 'Medio_6.69-8.4',
+    'Alto (25-30)': 'Alto_8.42-10.0'
 }
 
 # ============================================================================
@@ -129,18 +136,36 @@ with st.form("assessment_form", clear_on_submit=False):
     for i, feature in enumerate(features_list):
         if i % 2 == 0:
             with col1:
-                user_input[feature] = st.selectbox(
-                    f"{feature}",
-                    options=FEATURE_OPTIONS[feature],
-                    key=f"select_{feature}"
-                )
+                if feature == 'CGPA_30':
+                    cgpa_30_val = st.selectbox(
+                        "CGPA (trentesimi)",
+                        options=FEATURE_OPTIONS[feature],
+                        key=f"select_{feature}"
+                    )
+                    # Convert to 0-10 scale for model
+                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val]
+                else:
+                    user_input[feature] = st.selectbox(
+                        f"{feature}",
+                        options=FEATURE_OPTIONS[feature],
+                        key=f"select_{feature}"
+                    )
         else:
             with col2:
-                user_input[feature] = st.selectbox(
-                    f"{feature}",
-                    options=FEATURE_OPTIONS[feature],
-                    key=f"select_{feature}"
-                )
+                if feature == 'CGPA_30':
+                    cgpa_30_val = st.selectbox(
+                        "CGPA (trentesimi)",
+                        options=FEATURE_OPTIONS[feature],
+                        key=f"select_{feature}"
+                    )
+                    # Convert to 0-10 scale for model
+                    user_input['CGPA'] = CGPA_MAPPING[cgpa_30_val]
+                else:
+                    user_input[feature] = st.selectbox(
+                        f"{feature}",
+                        options=FEATURE_OPTIONS[feature],
+                        key=f"select_{feature}"
+                    )
     
     st.markdown("---")
     
@@ -201,6 +226,7 @@ if submit_button:
         
         # Risk factors
         st.subheader("📋 Contributing Factors")
+        st.caption("Nota: alcune risposte favorevoli sono categorie di riferimento del modello e quindi non hanno un coefficiente esplicito nel report.")
         
         factor_col1, factor_col2 = st.columns(2)
         
