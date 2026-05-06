@@ -9,6 +9,7 @@ Interactive quiz that:
 
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 from utils import load_pipeline
 
 # ============================================================================
@@ -60,16 +61,19 @@ st.markdown("""
     }
     .factor-box {
         padding: 0.8em;
-        background-color: #f5f5f5;
+        background: rgba(255, 255, 255, 0.06);
         border-radius: 0.3em;
         margin: 0.5em 0;
         font-size: 0.95em;
+        color: #e5e7eb;
     }
     .factor-positive {
         border-left: 3px solid #d32f2f;
+        background: rgba(211, 47, 47, 0.14);
     }
     .factor-negative {
         border-left: 3px solid #388e3c;
+        background: rgba(56, 142, 60, 0.14);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -79,9 +83,10 @@ st.markdown("""
 # ============================================================================
 
 @st.cache_resource
-def get_pipeline():
+def get_pipeline(cache_version: str = "2026-05-06-3"):
     """Load pipeline once and cache it."""
-    return load_pipeline(models_dir='./models')
+    models_dir = Path(__file__).resolve().parent / 'models'
+    return load_pipeline(models_dir=str(models_dir))
 
 pipeline = get_pipeline()
 
@@ -217,16 +222,16 @@ if submit_button:
             )
         
         with col3:
+            train_prevalence = result.get('train_prevalence', result.get('threshold', 0.0))
             st.metric(
-                label="Log-Odds",
-                value=f"{result['log_odds']:.2f}"
+                label="Cluster depression rate",
+                value=f"{train_prevalence:.1%}"
             )
         
         st.markdown("---")
         
         # Risk factors
         st.subheader("📋 Contributing Factors")
-        st.caption("Nota: alcune risposte favorevoli sono categorie di riferimento del modello e quindi non hanno un coefficiente esplicito nel report.")
         
         factor_col1, factor_col2 = st.columns(2)
         

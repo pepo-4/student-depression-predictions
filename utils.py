@@ -245,6 +245,7 @@ class InferencePipeline:
             'cluster_name': self._get_cluster_name(cluster),
             'probability': probability,
             'threshold': threshold,
+            'train_prevalence': float(self.results[cluster].get('Train_Prevalence', threshold)),
             'is_risk': is_risk,
             'message': message,
             'positive_factors': positive_factors,
@@ -270,4 +271,7 @@ class InferencePipeline:
 
 def load_pipeline(models_dir: str = './models') -> InferencePipeline:
     """Convenience function to load the full pipeline."""
-    return InferencePipeline(models_dir=models_dir)
+    models_path = Path(models_dir)
+    if not models_path.is_absolute():
+        models_path = Path(__file__).resolve().parent / models_path
+    return InferencePipeline(models_dir=str(models_path))
