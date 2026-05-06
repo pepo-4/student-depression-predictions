@@ -299,8 +299,7 @@ if submit_button:
         with col2:
             st.metric(
                 label="Cluster Assignment",
-                value=result['cluster'],
-                help=result['cluster_name']
+                value=result['cluster_name']
             )
         
         with col3:
