@@ -256,14 +256,6 @@ if submit_button:
             else:
                 st.info("No significant protective factors detected.")
         
-        st.markdown("---")
-        
-        # Profile summary
-        st.subheader("👤 Your Profile")
-        profile_df = pd.DataFrame([user_input]).T
-        profile_df.columns = ['Value']
-        st.dataframe(profile_df, use_container_width=True)
-        
     except Exception as e:
         st.error(f"❌ Error during analysis: {str(e)}")
         st.exception(e)
