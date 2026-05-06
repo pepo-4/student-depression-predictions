@@ -117,6 +117,12 @@ CGPA_MAPPING = {
 
 PLACEHOLDER_OPTION = "Select..."
 
+CLUSTER_LABELS = {
+    0: "University Students (Older)",
+    1: "High School Students (Younger)",
+    2: "University Students (Younger)",
+}
+
 
 def with_placeholder(options):
     return [PLACEHOLDER_OPTION] + options
@@ -297,9 +303,10 @@ if submit_button:
             )
         
         with col2:
+            cluster_label = CLUSTER_LABELS.get(result['cluster'], result.get('cluster_name', 'Unknown'))
             st.metric(
                 label="Cluster Assignment",
-                value=result['cluster_name']
+                value=cluster_label
             )
         
         with col3:
