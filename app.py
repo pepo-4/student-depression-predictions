@@ -194,15 +194,6 @@ if submit_button:
         st.success("✅ Analysis complete!")
         st.markdown("---")
         
-        # Main risk display
-        risk_class = "risk-high" if result['is_risk'] else "risk-low"
-        st.markdown(
-            f'<div class="{risk_class} risk-box">{result["message"]}</div>',
-            unsafe_allow_html=True
-        )
-        
-        st.markdown("---")
-        
         # Detailed results in columns
         col1, col2, col3 = st.columns(3)
         
