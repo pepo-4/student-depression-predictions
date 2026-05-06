@@ -141,6 +141,45 @@ def encode_form_value(feature, value):
         }[value]
     return value
 
+
+def format_factor_label(factor_name):
+    feature, _, value = factor_name.partition('_')
+    feature = feature.replace('_', ' ')
+    value = value.replace('_', ' ')
+
+    feature_map = {
+        'Age': 'Age',
+        'Academic Pressure': 'Academic Pressure',
+        'Study Satisfaction': 'Study Satisfaction',
+        'Financial Stress': 'Financial Stress',
+        'Work Study Hours': 'Work/Study Hours',
+        'Sleep Duration': 'Sleep Duration',
+        'Dietary Habits': 'Dietary Habits',
+        'Family History of Mental Illness': 'Family History of Mental Illness',
+        'Degree Level': 'Degree Level',
+        'Gender': 'Gender',
+        'CGPA': 'CGPA'
+    }
+
+    value_map = {
+        'Basso 18-26': '18-26 years',
+        'Alto 27-43': '27-43 years',
+        'Basso 0-4': '0-4 hours',
+        'Medio 5-9': '5-9 hours',
+        'Alto 10-12': '10-12 hours',
+        'Alto 8.42-10.0': '25-30',
+        'Medio 6.69-8.4': '20-25',
+        'Basso 5.03-6.65': '15-20',
+        'Basso': 'Low',
+        'Medio': 'Medium',
+        'Alto': 'High'
+    }
+
+    display_feature = feature_map.get(feature, feature)
+    display_value = value_map.get(value, value)
+
+    return f"{display_feature} {display_value}".strip()
+
 # ============================================================================
 # MAIN UI
 # ============================================================================
@@ -273,7 +312,7 @@ if submit_button:
             st.markdown("**🚩 Risk Factors**")
             if result['positive_factors']:
                 for factor_name, coef in result['positive_factors'][:3]:
-                    clean_name = factor_name.replace('_', ' ')
+                    clean_name = format_factor_label(factor_name)
                     st.markdown(
                         f'<div class="factor-box factor-positive">'
                         f'<strong>{clean_name}</strong><br/>'
@@ -288,7 +327,7 @@ if submit_button:
             st.markdown("**🌿 Protective Factors**")
             if result['negative_factors']:
                 for factor_name, coef in result['negative_factors'][:3]:
-                    clean_name = factor_name.replace('_', ' ')
+                    clean_name = format_factor_label(factor_name)
                     st.markdown(
                         f'<div class="factor-box factor-negative">'
                         f'<strong>{clean_name}</strong><br/>'
