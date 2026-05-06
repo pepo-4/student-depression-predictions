@@ -148,9 +148,10 @@ class InferencePipeline:
             if user_val is None:
                 continue
             
-            # Create dummy name: clean the value string
-            clean_val = str(user_val).replace(' ', '_').replace('/', '_')
-            dummy_name = f"{feat_name}_{clean_val}"
+            # Match the naming convention used by the fitted model coefficients
+            clean_feat = self._normalize_name(feat_name)
+            clean_val = self._normalize_name(user_val)
+            dummy_name = f"{clean_feat}_{clean_val}"
             
             # Check if this dummy exists in model coefficients
             if dummy_name in params.index:
@@ -260,6 +261,11 @@ class InferencePipeline:
             2: "Cluster 2 (Uni Giovani)"
         }
         return names.get(cluster, "Sconosciuto")
+
+    @staticmethod
+    def _normalize_name(value) -> str:
+        """Normalize field names and categorical values to model coefficient format."""
+        return str(value).replace(' ', '_').replace('/', '_')
 
 
 def load_pipeline(models_dir: str = './models') -> InferencePipeline:
