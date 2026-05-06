@@ -75,6 +75,25 @@ st.markdown("""
         border-left: 3px solid #388e3c;
         background: rgba(56, 142, 60, 0.08);
     }
+    .cluster-box {
+        padding: 0.2em 0;
+        color: #ffffff;
+        min-height: 4.2em;
+    }
+    .cluster-label {
+        font-size: 0.95em;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.25em;
+    }
+    .cluster-value {
+        font-size: 1.95em;
+        font-weight: 500;
+        line-height: 1.15;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        color: #ffffff;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -304,9 +323,12 @@ if submit_button:
         
         with col2:
             cluster_label = CLUSTER_LABELS.get(result['cluster'], result.get('cluster_name', 'Unknown'))
-            st.metric(
-                label="Cluster Assignment",
-                value=cluster_label
+            st.markdown(
+                f'<div class="cluster-box">'
+                f'<div class="cluster-label">Cluster Assignment</div>'
+                f'<div class="cluster-value">{cluster_label}</div>'
+                f'</div>',
+                unsafe_allow_html=True
             )
         
         with col3:
